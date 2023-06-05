@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import HomePage from "./components/pages/homepage/homepage.component";
 // import Hatspage from "./components/pages/itemsPages/Hatspage.component";
 import ShopPage from "./components/pages/Shop/shop.component";
@@ -48,15 +48,24 @@ class Route1 extends React.Component {
           <Route path="/" element={<HomePage />} />
           {/* <Route path="/Hatspage" element={<Hatspage />} /> */}
           <Route path="/Shop" element={<ShopPage />} />
-          <Route path="/Signin" element={<SignInAndSignUp />} />
+          <Route
+            exact
+            path="/Signin"
+            element={<SignInAndSignUp />}
+            render={() =>
+              this.props.currentUser ? <Navigate to="/" /> : <SignInAndSignUp />
+            }
+          />
         </Routes>
       </>
     );
   }
 }
-
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser,
+});
 const mapDispatchToProps = (dispatch) => ({
   setCurrentUser: (user) => dispatch(setCurrentUser(user)),
 });
 
-export default connect(null, mapDispatchToProps)(Route1);
+export default connect(mapStateToProps, mapDispatchToProps)(Route1);
