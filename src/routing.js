@@ -5,30 +5,45 @@ import HomePage from "./components/pages/homepage/homepage.component";
 import ShopPage from "./components/pages/Shop/shop.component";
 import Header from "./components/Header/header.component";
 import SignInAndSignUp from "./components/pages/sign-in-and-sign-up/sign-in-and-sign-up.component";
-import { auth } from "./firebase/firebase.utils";
+import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
+import { connect } from "react-redux";
+import { setCurrentUser } from "./Redux/user/user.actions";
 
 class Route1 extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      currentUser: null,
-    };
-  }
-  unsubscriberFromAuth = null;
+  // constructor() {
+  //   super();
+  //   this.state = {
+  //     currentUser: null,
+  //   };
+  // }
+  unsubscribeFromAuth = null;
 
   componentDidMount() {
-    this.unsubscriberFromAuth = auth.onAuthStateChanged((user) => {
-      this.setState({ currentUser: user });
-      console.log(user);
+    const { setCurrentUser } = this.props;
+
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
+      if (userAuth) {
+        const userRef = await createUserProfileDocument(userAuth);
+
+        userRef.onSnapshot((snapShot) => {
+          setCurrentUser({
+            id: snapShot.id,
+            ...snapShot.data(),
+          });
+        });
+      }
+
+      setCurrentUser(userAuth);
     });
   }
+
   componentWillUnmount() {
-    this.unsubscriberFromAuth();
+    this.unsubscribeFromAuth();
   }
   render() {
     return (
       <>
-        <Header currentUser={this.state.currentUser} />
+        <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
           {/* <Route path="/Hatspage" element={<Hatspage />} /> */}
@@ -39,4 +54,9 @@ class Route1 extends React.Component {
     );
   }
 }
-export default Route1;
+
+const mapDispatchToProps = (dispatch) => ({
+  setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+});
+
+export default connect(null, mapDispatchToProps)(Route1);
