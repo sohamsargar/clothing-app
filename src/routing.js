@@ -8,6 +8,7 @@ import SignInAndSignUp from "./components/pages/sign-in-and-sign-up/sign-in-and-
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 import { connect } from "react-redux";
 import { setCurrentUser } from "./Redux/user/user.actions";
+import CheckoutPage from "./components/checkout/checkout.component";
 
 class Route1 extends React.Component {
   // constructor() {
@@ -48,6 +49,8 @@ class Route1 extends React.Component {
           <Route path="/" element={<HomePage />} />
           {/* <Route path="/Hatspage" element={<Hatspage />} /> */}
           <Route path="/Shop" element={<ShopPage />} />
+          <Route exact path="/checkout" element={<CheckoutPage />} />
+
           <Route
             exact
             path="/Signin"
